@@ -56,10 +56,15 @@ public class TenderMultipleLotDocument
         Random rand = new Random(); 
         int ii = rand.nextInt(100000); 
         
+        WebDriver driver = new FirefoxDriver();
+        WebElement submi = null;
+        Actions builder = new Actions(driver);
+        
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        
+        
         try
         {
-            WebDriver driver = new FirefoxDriver();
-         
             driver.get("http://192.168.3.8:8080/");
             ((JavascriptExecutor) driver).executeScript("return window.stop");
             try
@@ -72,19 +77,129 @@ public class TenderMultipleLotDocument
                     
                 email.clear();			
 
-                    WebElement password = driver.findElement(By.name("password"));
-                    password.clear();
+                WebElement password = driver.findElement(By.name("password"));
+                password.clear();
 
-                    email.sendKeys("pauserrotdormowhs@gmail.com");					
-                    password.sendKeys("egp12345");
-
-
-
-                    
-                                
-
-                        
+                email.sendKeys("pauserrotdormowhs@gmail.com");					
+                password.sendKeys("egp12345");
                 
+                WebElement login = driver.findElement(By.id("btnLogin"));
+                login.submit();
+                
+                
+                String menuPath = "//*[@id='headTabTender']";
+                String dropDownMenuPath = "//a[contains(text(),'My Tender')]";
+
+                dropDownMenuLink(driver, wait, menuPath, dropDownMenuPath, builder);    
+
+
+                submitButton(driver, "//a[contains(text(),'Under Preparation')]", wait);
+
+                String tenderID = "1215,\nTestSelenium1215";    
+                String linktenderID = "";
+
+                String dashboardLink = "";
+
+                //*[@id='resultTable']/tbody/tr[2]/td[7]/a[contains(@href,'TenderDashboard.jsp')]
+
+                //*[@id='resultTable']/tbody/tr[4]
+
+                WebElement table = driver.findElement(By.id("resultTable")); 
+                List<WebElement> allRows = table.findElements(By.tagName("tr")); 
+
+                String beforeAppIDXpath = "//*[@id='resultTable']/tbody/tr[";
+                String AfterAppIDXpath = "]/td[2]";
+
+                for(int i=1;i<allRows.size();i++)
+                {
+                    linktenderID = driver.findElement(By.xpath(beforeAppIDXpath+i+AfterAppIDXpath)).getText();
+
+                    if(linktenderID.equalsIgnoreCase(tenderID))
+                    {
+                        String s = beforeAppIDXpath+i+AfterAppIDXpath;
+                        System.out.println(linktenderID);
+
+                        dashboardLink = beforeAppIDXpath+i+"]/td[7]/a[contains(@href,'TenderDashboard.jsp')]";
+
+                        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(dashboardLink)));     
+                        driver.findElement(By.xpath(dashboardLink)).click();
+                        break;
+
+                    }
+                    //System.out.println(linkAppID);
+                }    
+
+                submitButton(driver, "//a[contains(@href,'TenderDocPrep.jsp')]", wait);
+
+                String lotDescription[] ={"","Computer","Router","Server","Monitor","Generator"};
+
+                String formTenderID="";
+                String beforeActionLinkID="";
+                String afterActionLinkID="";
+                String fromDashBoardLinkID="";
+                beforeAppIDXpath = "//table[";
+                AfterAppIDXpath = "]/tbody/tr/th[contains(text(),'Form Name 2')]";
+
+                String genearateXpath="";
+
+                By by;
+                Boolean flag = false;
+                Boolean discountFrom = false;
+
+                allRows = driver.findElements(By.xpath("//table"));
+
+                for(int i=1;i<=allRows.size();i++)
+                {
+                    String ss = beforeAppIDXpath+i+AfterAppIDXpath;
+                    by = By.xpath(beforeAppIDXpath+i+AfterAppIDXpath);
+                    flag = FindElement(driver, by, 1);
+                    if(flag == true)
+                    {
+                        formTenderID = driver.findElement(By.xpath(beforeAppIDXpath+i+AfterAppIDXpath)).getText();
+                        if(formTenderID.equalsIgnoreCase("Form Name 2"))
+                        {
+                            beforeActionLinkID = beforeAppIDXpath+i+"]/tbody/tr[";                        
+                            afterActionLinkID = "]/td[3]/a[contains(@href,'TenderTableDashboard.jsp')]";
+                            for(int j=1;j<=5;j++)
+                            {
+                                fromDashBoardLinkID = beforeActionLinkID+j+afterActionLinkID;
+                                by = By.xpath(fromDashBoardLinkID);
+                                flag = FindElement(driver, by, 1);
+                                if(flag == true)
+                                {
+                                    submitButton(driver, fromDashBoardLinkID, wait);
+                                    printUrl(driver);
+                                    submitButton(driver, "//a[contains(text(),'Fill up the Tables')]", wait);
+                                    printUrl(driver);
+
+                                    genearateXpath = "//*[@id='frmTableCreation']/table[2]/tbody/tr/td[contains(text(),'Discount Form')]";
+                                    by = By.xpath(genearateXpath);
+                                    discountFrom = FindElement(driver, by, 1);
+
+                                    if(discountFrom == true)
+                                    {
+                                        submitButton(driver, "//*[@id='sucolumnbBtnCreateEdit']", wait);
+                                        driver.switchTo().alert().accept();                    
+                                        submitButton(driver, "//a[contains(text(),'Tender Document')]", wait);
+                                    }
+                                    else
+                                    {
+                                        submitButton(driver, "//a[contains(text(),'Add Row')]", wait);
+                                        //submitButton(driver, "//a[contains(text(),'Form Dashboard')]", wait);
+                                        docFiilUp(driver, wait);
+                                        submitButton(driver, "//*[@id='sucolumnbBtnCreateEdit']", wait);
+                                        driver.switchTo().alert().accept();
+
+                                        //submitButton(driver, "//a[contains(text(),'Form Dashboard')]", wait);
+                                        submitButton(driver, "//a[contains(text(),'Tender Document')]", wait);
+                                        printUrl(driver);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+              
             }        
             catch(Exception e)
             {
@@ -110,27 +225,6 @@ public class TenderMultipleLotDocument
             JavascriptExecutor executor = (JavascriptExecutor)driver;
             executor.executeScript("arguments[0].click();", elementChkBox);
         }
-        
-        /*if(weUnchecked.isEnabled())
-        {
-            weUnchecked.click();
-            Thread.sleep(200);
-        }
-        else
-        {
-            //wait = new WebDriverWait(driver, 10);
-            //Thread.sleep(3000);
-            //weUnchecked.click();
-            //Thread.sleep(3000);
-            //wait = new WebDriverWait(driver, 10);
-        }
-        
-        WebElement element = driver.findElement(By.xpath(xpath));
-
-        wait = new WebDriverWait(driver, 15);
-        wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-        */
-        
     }
     
     
@@ -197,18 +291,10 @@ public class TenderMultipleLotDocument
                 }
                     
             }
-            
             row++;
             description = "Router";
-            
-           
         }
-        
-        
-        
     }
-    
-    
     
     public static String getDate(WebDriver driver, String dateID, int yearInc)
     {
@@ -268,8 +354,6 @@ public class TenderMultipleLotDocument
         
         return date;
     }
-    
-    
     
     
     
