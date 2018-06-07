@@ -95,7 +95,7 @@ public class TenderMultipleLotDocument
 
                 submitButton(driver, "//a[contains(text(),'Under Preparation')]", wait);
 
-                String tenderID = "1215,\nTestSelenium1215";    
+                String tenderID = "1218,\nTestSelenium1218";    
                 String linktenderID = "";
 
                 String dashboardLink = "";
@@ -147,58 +147,103 @@ public class TenderMultipleLotDocument
                 Boolean discountFrom = false;
 
                 allRows = driver.findElements(By.xpath("//table"));
-
+                String createFormWorkFlow = "";
+                
+                int docCount = 0;
+                
                 for(int i=1;i<=allRows.size();i++)
                 {
-                    String ss = beforeAppIDXpath+i+AfterAppIDXpath;
-                    by = By.xpath(beforeAppIDXpath+i+AfterAppIDXpath);
-                    flag = FindElement(driver, by, 1);
-                    if(flag == true)
+                    if(docCount < 5)
                     {
-                        formTenderID = driver.findElement(By.xpath(beforeAppIDXpath+i+AfterAppIDXpath)).getText();
-                        if(formTenderID.equalsIgnoreCase("Form Name 2"))
+                        String ss = beforeAppIDXpath+i+AfterAppIDXpath;
+                        by = By.xpath(beforeAppIDXpath+i+AfterAppIDXpath);
+                        flag = FindElement(driver, by, 1);
+                        if(flag == true)
                         {
-                            beforeActionLinkID = beforeAppIDXpath+i+"]/tbody/tr[";                        
-                            afterActionLinkID = "]/td[3]/a[contains(@href,'TenderTableDashboard.jsp')]";
-                            for(int j=1;j<=5;j++)
+                            formTenderID = driver.findElement(By.xpath(beforeAppIDXpath+i+AfterAppIDXpath)).getText();
+                            createFormWorkFlow = driver.findElement(By.xpath(beforeAppIDXpath+i+AfterAppIDXpath)).getText();
+                            if(formTenderID.equalsIgnoreCase("Form Name 2"))
                             {
-                                fromDashBoardLinkID = beforeActionLinkID+j+afterActionLinkID;
-                                by = By.xpath(fromDashBoardLinkID);
-                                flag = FindElement(driver, by, 1);
-                                if(flag == true)
+                                docCount++;
+                                beforeActionLinkID = beforeAppIDXpath+i+"]/tbody/tr[";                        
+                                afterActionLinkID = "]/td[3]/a[contains(@href,'TenderTableDashboard.jsp')]";
+                                for(int j=1;j<=5;j++)
                                 {
-                                    submitButton(driver, fromDashBoardLinkID, wait);
-                                    printUrl(driver);
-                                    submitButton(driver, "//a[contains(text(),'Fill up the Tables')]", wait);
-                                    printUrl(driver);
-
-                                    genearateXpath = "//*[@id='frmTableCreation']/table[2]/tbody/tr/td[contains(text(),'Discount Form')]";
-                                    by = By.xpath(genearateXpath);
-                                    discountFrom = FindElement(driver, by, 1);
-
-                                    if(discountFrom == true)
+                                    fromDashBoardLinkID = beforeActionLinkID+j+afterActionLinkID;
+                                    by = By.xpath(fromDashBoardLinkID);
+                                    flag = FindElement(driver, by, 1);
+                                    if(flag == true)
                                     {
-                                        submitButton(driver, "//*[@id='sucolumnbBtnCreateEdit']", wait);
-                                        driver.switchTo().alert().accept();                    
-                                        submitButton(driver, "//a[contains(text(),'Tender Document')]", wait);
-                                    }
-                                    else
-                                    {
-                                        submitButton(driver, "//a[contains(text(),'Add Row')]", wait);
-                                        //submitButton(driver, "//a[contains(text(),'Form Dashboard')]", wait);
-                                        docFiilUp(driver, wait);
-                                        submitButton(driver, "//*[@id='sucolumnbBtnCreateEdit']", wait);
-                                        driver.switchTo().alert().accept();
-
-                                        //submitButton(driver, "//a[contains(text(),'Form Dashboard')]", wait);
-                                        submitButton(driver, "//a[contains(text(),'Tender Document')]", wait);
+                                        submitButton(driver, fromDashBoardLinkID, wait);
                                         printUrl(driver);
+                                        submitButton(driver, "//a[contains(text(),'Fill up the Tables')]", wait);
+                                        printUrl(driver);
+
+                                        genearateXpath = "//*[@id='frmTableCreation']/table[2]/tbody/tr/td[contains(text(),'Discount Form')]";
+                                        by = By.xpath(genearateXpath);
+                                        discountFrom = FindElement(driver, by, 1);
+
+                                        if(discountFrom == true)
+                                        {
+                                            submitButton(driver, "//*[@id='sucolumnbBtnCreateEdit']", wait);
+                                            driver.switchTo().alert().accept();                    
+                                            submitButton(driver, "//a[contains(text(),'Tender Document')]", wait);
+                                        }
+                                        else
+                                        {
+                                            submitButton(driver, "//a[contains(text(),'Add Row')]", wait);
+                                            //submitButton(driver, "//a[contains(text(),'Form Dashboard')]", wait);
+                                            docFiilUp(driver, wait);
+                                            submitButton(driver, "//*[@id='sucolumnbBtnCreateEdit']", wait);
+                                            driver.switchTo().alert().accept();
+
+                                            //submitButton(driver, "//a[contains(text(),'Form Dashboard')]", wait);
+                                            submitButton(driver, "//a[contains(text(),'Tender Document')]", wait);
+                                            printUrl(driver);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+                
+                beforeAppIDXpath = "//table[";
+                AfterAppIDXpath = "]/tbody/tr/td/a";
+                
+                String createIndex = "";
+                
+                allRows = driver.findElements(By.xpath("//table"));
+                docCount = 0;
+                
+                for(int i=1;i<=allRows.size();i++)
+                {
+                    if(docCount < 5)
+                    {
+                        createIndex = beforeAppIDXpath+i+AfterAppIDXpath;
+                        by = By.xpath(beforeAppIDXpath+i+AfterAppIDXpath);
+
+                        flag = FindElement(driver, by, 1);
+                        if(flag == true)
+                        {
+                            createFormWorkFlow = driver.findElement(By.xpath(createIndex)).getText();
+                            if(createFormWorkFlow.equalsIgnoreCase("Create"))
+                            {
+                                docCount++;
+                                driver.findElement(By.xpath("//table/tbody/tr/td/a[contains(text(),'Create')]")).click();
+                                submitButton(driver, "//*[@id='saveoredit']", wait);
+                                submitButton(driver, "//a[contains(@href,'TenderDocPrep.jsp')]", wait);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                
+                
+                
               
             }        
             catch(Exception e)
